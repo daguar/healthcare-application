@@ -108,10 +108,11 @@ class HealthCareApp extends React.Component {
       timeout: 10000, // 10 seconds
       body: json
     }).then(response => {
+      store.dispatch(updateSubmissionStatus('submitPending', false));
       if (!response.ok) {
         throw new Error(response.statusText);
       }
-      store.dispatch(updateSubmissionStatus('submitSucceeded', response.json()));
+      store.dispatch(updateSubmissionStatus('applicationSubmitted', response.json()));
     }).catch(error => {
       store.dispatch(updateSubmissionStatus('submitFailed', error));
     });
@@ -158,8 +159,11 @@ class HealthCareApp extends React.Component {
           <div className="small-6 medium-5 columns">
             {backButton}
           </div>
-          <div className="small-6 medium-5 end columns">
+          <div className="small-6 medium-5 columns">
             {submitButton}
+          </div>
+          <div className="small-1 medium-1 end columns">
+            <div className={this.state ? 'spinner' : 'hidden'}>&nbsp;</div>
           </div>
         </div>
       );
