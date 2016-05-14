@@ -4,11 +4,12 @@ import { IndexRedirect, Route, Router, hashHistory } from 'react-router';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
 
-import HealthCareApp from './components/HealthCareApp.jsx';
 import reducer from './reducers';
 import routes from './routes.jsx';
 
 const store = createStore(reducer);
+
+import HealthCareApp from './components/HealthCareApp.jsx';
 
 function init() {
   ReactDOM.render((

@@ -2,6 +2,7 @@ import React from 'react';
 import Scroll from 'react-scroll';
 import _ from 'lodash';
 
+import { connect } from 'react-redux';
 import fetch from 'isomorphic-fetch';
 
 import IntroductionSection from './IntroductionSection.jsx';
@@ -66,13 +67,13 @@ class HealthCareApp extends React.Component {
 
   handleContinue() {
     const path = this.props.location.pathname;
-    const formData = this.context.store.getState().veteran;
-    const sectionFields = this.context.store.getState().uiState.sections[path].fields;
+    const formData = this.props.data;
+    const sectionFields = this.props.uiState.sections[path].fields;
 
-    this.context.store.dispatch(ensureFieldsInitialized(sectionFields));
+    this.props.dispatch(ensureFieldsInitialized(sectionFields));
     if (validations.isValidSection(path, formData)) {
       this.context.router.push(this.getUrl('next'));
-      this.context.store.dispatch(updateCompletedStatus(path));
+      this.props.dispatch(updateCompletedStatus(path));
     }
     this.scrollToTop();
   }
@@ -85,18 +86,16 @@ class HealthCareApp extends React.Component {
   handleSubmit(e) {
     e.preventDefault();
     const path = this.props.location.pathname;
-    const store = this.context.store;
-    const veteran = store.getState().veteran;
+    const veteran = this.props.data;
 
     // Strip out unnecessary fields'
     function reducer(key, value) {
       return key === 'dirty' ? undefined : value;
     }
     const json = JSON.stringify(veteran, reducer, 4);
-    console.log(json);
 
-    store.dispatch(updateSubmissionStatus('submitPending'));
-    store.dispatch(updateCompletedStatus(path));
+    this.props.dispatch(updateSubmissionStatus('submitPending'));
+    this.props.dispatch(updateCompletedStatus(path));
 
     // POST data to endpoint
     fetch('/v1/api/submit', {
@@ -108,13 +107,13 @@ class HealthCareApp extends React.Component {
       timeout: 10000, // 10 seconds
       body: json
     }).then(response => {
-      store.dispatch(updateSubmissionStatus('submitPending', false));
+      this.props.dispatch(updateSubmissionStatus('submitPending', false));
       if (!response.ok) {
         throw new Error(response.statusText);
       }
-      store.dispatch(updateSubmissionStatus('applicationSubmitted', response.json()));
+      this.props.dispatch(updateSubmissionStatus('applicationSubmitted', response.json()));
     }).catch(error => {
-      store.dispatch(updateSubmissionStatus('submitFailed', error));
+      this.props.dispatch(updateSubmissionStatus('submitFailed', error));
     });
 
     this.scrollToTop();
@@ -225,11 +224,29 @@ class HealthCareApp extends React.Component {
   }
 }
 
-// TODO(awong): Hack to allow access to the store for now while migrating.
-// All uses of this.context.store in this file are WRONG!!!
-HealthCareApp.contextTypes = {
-  router: React.PropTypes.object.isRequired,
-  store: React.PropTypes.object
+HealthCareApp.propTypes = {
+  currentUrl: React.PropTypes.string.isRequired
 };
 
-export default HealthCareApp;
+HealthCareApp.contextTypes = {
+  router: React.PropTypes.object.isRequired
+};
+
+function mapStateToProps(state) {
+  return {
+    data: state.veteran,
+    uiState: state.uiState
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    onStateChange: (field, update) => {
+      // dispatch(veteranUpdateField(field, update));
+    }
+  };
+}
+
+// TODO(awong): Remove the pure: false once we start using ImmutableJS.
+export default connect(mapStateToProps, mapDispatchToProps, undefined, { pure: false })(HealthCareApp);
+export { HealthCareApp };
