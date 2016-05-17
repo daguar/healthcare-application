@@ -7,7 +7,7 @@ const veteranToSaveSubmitForm = require('../src/server/enrollment-system').veter
 var securityArtifacts; // eslint-disable-line
 
 function attach(app) {
-  app.set('restApiRoot', '/v1/api');
+  app.set('restApiRoot', '/api/hca/v1');
 
   // TODO: use `NODE_ENV` should probably determining which endpoint is selected.
   const endpoint = {
@@ -75,6 +75,8 @@ function attach(app) {
       remotingEnabled: true,
       wsdl: path.join(__dirname, './voa.wsdl'),
       url: endpoint.esPreprod,
+//      wsdl: endpoint.esDev + '?wsdl',
+//      url: endpoint.esDev,
       security: securityArtifacts,
       wsdl_options: securityArtifacts === null ? null : { // eslint-disable-line
         rejectUnauthorized: false,
@@ -88,9 +90,9 @@ function attach(app) {
     const VoaService = ds.createModel('VoaService', {});
 
     // Add the methods
-    // TODO(awong): Rename "form" to "veteran" uniformly. #210
     VoaService.submit = (form, cb) => {
-      VoaService.saveSubmitForm(veteranToSaveSubmitForm(form), (err, response) => {
+      const request = veteranToSaveSubmitForm(form);
+      VoaService.saveSubmitForm(request, (err, response) => {
         const result = response;
         cb(err, result);
       });
@@ -106,12 +108,9 @@ function attach(app) {
     // Map to REST/HTTP
     loopback.remoteMethod(
       VoaService.submit, {
-        accepts: [
-          { arg: 'form', type: 'Object', required: true,
-            http: { source: 'body' } }
-        ],
+        accepts: { arg: 'form', type: 'Object', http: {source: 'body'} },
         returns: { arg: 'result', type: 'string', root: true },
-        http: { verb: 'post', path: '/submit' }
+        http: { path: '/submit' }
       }
     );
 
@@ -134,7 +133,7 @@ function attach(app) {
 
     // API explorer (if present)
     try {
-      const explorer = require('loopback-component-explorer')(app, { basePath: '/hca', mountPath: '/explorer' });
+      const explorer = require('loopback-component-explorer')(app, { basePath: app.get('restApiRoot'), mountPath: '/explorer' });
       app.once('started', (baseUrl) => {
         console.log('Browse your REST API at %s%s', baseUrl, explorer.route);
       });

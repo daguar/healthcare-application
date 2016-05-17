@@ -56,8 +56,8 @@ const blankVeteran = {
   homePhone: makeField(''),
   mobilePhone: makeField(''),
 
-  provideFinancialInfo: false,
-  understandsFinancialDisclosure: false,
+  provideFinancialInfo: makeField(''),
+  understandsFinancialDisclosure: makeField(''),
 
   spouseFullName: {
     first: makeField(''),
@@ -76,7 +76,7 @@ const blankVeteran = {
     day: makeField(''),
     year: makeField('')
   },
-  sameAddress: false,
+  sameAddress: makeField(''),
   cohabitedLastYear: false,
   provideSupportLastYear: false,
   spouseAddress: {
@@ -106,8 +106,8 @@ const blankVeteran = {
   isCoveredByHealthInsurance: false,
   providers: [],
 
-  isMedicaidEligible: false,
-  isEnrolledMedicarePartA: false,
+  isMedicaidEligible: makeField(''),
+  isEnrolledMedicarePartA: makeField(''),
   medicarePartAEffectiveDate: {
     month: makeField(''),
     day: makeField(''),
@@ -242,7 +242,7 @@ export const completeVeteran = {
       dirty: false
     },
     zipcode: {
-      value: '001234-1234',
+      value: '20005',
       dirty: false
     }
   },
@@ -518,7 +518,7 @@ export const completeVeteran = {
     }
   ],
   isMedicaidEligible: true,
-  isEnrolledMedicarePartA: true,
+  isEnrolledMedicarePartA: false,
   medicarePartAEffectiveDate: {
     month: {
       value: '10',
@@ -629,8 +629,8 @@ export default function veteran(state = blankVeteran, action) {
         state: makeField(''),
         zipcode: makeField(''),
       };
-      if (action.value) {
-        _.set(newState, action.propertyPath, state.veteranAddress.address);
+      if (action.value.value === 'Y') {
+        _.set(newState, action.propertyPath, state.veteranAddress);
       } else {
         _.set(newState, action.propertyPath, emptyAddress);
       }
