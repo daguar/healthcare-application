@@ -328,8 +328,8 @@ function veteranToEnrollmentDeterminationInfo(veteran) {
     },
 
     specialFactors: {
-      agentOrangeInd: false, // FIX
-      envContaminantsInd: false, // FIX
+      agentOrangeInd: veteran.vietnamService, // "Did you serve in Vietnam between January 9, 1962 and May 7, 1975?"
+      envContaminantsInd: veteran.swAsiaCombat, // "Did you serve in SW asia during the gulf war between August 2, 1990 and November 11, 1998?"
       campLejeuneInd: veteran.campLejeune,
       radiationExposureInd: veteran.exposedToRadiation,
     }
