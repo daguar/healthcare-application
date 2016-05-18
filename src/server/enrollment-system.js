@@ -540,7 +540,114 @@ function veteranToEnrollmentDeterminationInfo(veteran) {
 //  * financialStatementInfo / spouseFinancialsCollection / spouseFinancialsInfo / incomeCollection / incomeInfo / type, Not applicable, Yes, Data element is not a form captured element but provides the income type to identify the value as the Spouse's gross income from employment.
 //  * financialStatementInfo / spouseFinancialsCollection / spouseFinancialsInfo / incomeCollection / incomeInfo / type, Not applicable, Yes, "Data element is not a form captured element but provides the income type to identify the value as the Spouse's gross income from FARM,  RANCH,  PROPERTY OR BUSINESS."
 function veteranToFinancialsInfo(_veteran) {
-  return undefined;
+  return {
+    financialsInfo: {
+      financialStatementInfo: {
+        expenseCollection: {
+          expenseInfo: {
+            amount: 'amount',
+            expenseType: 'expenseType'
+          }
+        },
+        contributionToSpouse: 'contributionToSpouse',
+        assetCollection: {
+          assetInfo: 'assetInfo'
+        },
+        dependentFinancialsCollection: {
+          assetCollection: {
+            assetInfo: {
+              amount: 'amount',
+              assetType: 'assetType'
+            }
+          },
+          dependentFinancialsInfo: {
+            amountContributedToSupport: 'amountContributedToSupport',
+            attendedSchool: 'attendedSchool',
+            dependentInfo: {
+              familyName: 'familyName',
+              givenName: 'givenName',
+              middleName: 'middleName',
+              relationship: 'relationship',
+              ssns: {
+                ssn: 'ssn'
+              },
+              startDate: 'startDate'
+            },
+            expenseInfo: {
+              amount: 'amount',
+              expenseType: 'expenseType'
+            },
+            incapableOfSelfSupport: 'incapableOfSelfSupport',
+            livedWithPatient: 'livedWithPatient',
+            relationInfo: {
+              suffix: 'suffix'
+            }
+          }
+        },
+        incomeCollection: {
+          incomeInfo: {
+            amount: 'amount',
+            type: 'type',
+            amountIncome: 'amountIncome'
+          }
+        },
+        spouseFinancialsCollection: {
+          spouseFinancialsInfo: {
+            assetCollection: {
+              assetInfo: {
+                amount: 'amount',
+                assetType: 'assetType',
+              }
+            },
+            livedWithPatient: 'livedWithPatient',
+            spouseinfo: {
+              addressInfo: {
+                addressTypeCode: 'addressTypeCode',
+                city: 'city',
+                country: 'country',
+                line1: 'line1',
+                phoneNumber: 'phoneNumber',
+                state: 'state',
+                zipCode: 'zipCode',
+                zipPlus4: 'zipPlus4'
+              },
+              dob: 'dob',
+              employmentInfo: {
+                addressInfo: {
+                  addressTypeCode: 'addressTypeCode',
+                  city: 'city',
+                  country: 'country',
+                  line1: 'line1',
+                  state: 'state',
+                  zipCode: 'zipCode',
+                  zipPlus4: 'zipPlus4'
+                },
+                employerName: 'employerName',
+                employerPhone: 'employerPhone',
+                employmentStatus: 'employmentStatus',
+                retirementDate: 'retirementDate'
+              },
+              familyName: 'familyName',
+              givenName: 'givenName',
+              maidenName: 'maidenName',
+              middleName: 'middleName',
+              ssns: {
+                ssn: {
+                  type: 'type'
+                },
+                ssnText: 'ssnText'
+              },
+              startDate: 'startDate',
+              suffix: 'suffix'
+            }
+          }
+        }
+      },
+      incomeTestInfo: {
+        discloseFinancialInformation: 'discloseFinancialInformation'
+      }
+    }
+  };
 }
 
 // Produces an employmentInfo compatible type from a veteran resource.
