@@ -1,3 +1,4 @@
+'use strict';  // eslint-disable-line
 // Veteran resource prototype objects. In common so server unittests can access.
 
 const fields = require('./fields');
@@ -67,13 +68,13 @@ const blankVeteran = {
     year: makeField(''),
   },
   dateOfMarriage: {
-    month: makeField(''),  // TODO(awong): Ignored by ES System
-    day: makeField(''),  // TODO(awong): Ignored by ES System
-    year: makeField('')  // TODO(awong): Ignored by ES System
+    month: makeField(''),
+    day: makeField(''),
+    year: makeField('')
   },
   sameAddress: makeField(''),  // TODO(awong): Not sure how to handle the mapping.
-  cohabitedLastYear: makeField(''),  // TODO(awong): This should be scoped to spouse.
-  provideSupportLastYear: makeField(''),  // TODO(awong): This should be scoped to spouse.
+  cohabitedLastYear: makeField('N'),  // TODO(awong): This name should be scoped to spouse.
+  provideSupportLastYear: makeField(''),  // TODO(awong): This name should be scoped to spouse.
   spouseAddress: {
     street: makeField(''),
     city: makeField(''),
@@ -86,16 +87,16 @@ const blankVeteran = {
   hasChildrenToReport: makeField(''),
   children: [],
 
-  veteranGrossIncome: makeField(''),  // TODO(awong): Complex mapping still required.
-  veteranNetIncome: makeField(''),  // TODO(awong): Complex mapping still required.
-  veteranOtherIncome: makeField(''),  // TODO(awong): Complex mapping still required.
-  spouseGrossIncome: makeField(''),  // TODO(awong): Complex mapping still required.
-  spouseNetIncome: makeField(''),  // TODO(awong): Complex mapping still required.
-  spouseOtherIncome: makeField(''),  // TODO(awong): Complex mapping still required.
+  veteranGrossIncome: makeField(''),
+  veteranNetIncome: makeField(''),
+  veteranOtherIncome: makeField(''),
+  spouseGrossIncome: makeField(''),
+  spouseNetIncome: makeField(''),
+  spouseOtherIncome: makeField(''),
 
-  deductibleMedicalExpenses: makeField(''),  // TODO(awong): Complex mapping still required.
-  deductibleFuneralExpenses: makeField(''),  // TODO(awong): Complex mapping still required.
-  deductibleEducationExpenses: makeField(''),  // TODO(awong): Complex mapping still required.
+  deductibleMedicalExpenses: makeField(''),
+  deductibleFuneralExpenses: makeField(''),
+  deductibleEducationExpenses: makeField(''),
 
   isCoveredByHealthInsurance: makeField(''),  // TODO(awong): Ignored by ES System
   providers: [],
@@ -123,8 +124,8 @@ const blankVeteran = {
 
   purpleHeartRecipient: false,
   isFormerPow: false,
-  postNov111998Combat: false,  // TODO(awong): Ignored by ES System?
-  disabledInLineOfDuty: false,  // TODO(awong): Ignored by ES System?
+  postNov111998Combat: false,  // TODO(awong): Verify against e-mail.
+  disabledInLineOfDuty: false,  // TODO(awong): Verify against e-mail.
   swAsiaCombat: false,
   vietnamService: false,
   exposedToRadiation: false,
@@ -349,7 +350,7 @@ const completeVeteran = {
     }
   },
   spousePhone: {
-    value: '',
+    value: '1112221234',
     dirty: false
   },
   hasChildrenToReport: {
@@ -642,4 +643,75 @@ const completeVeteran = {
   campLejeune: true
 };
 
-module.exports = { blankVeteran, completeVeteran };
+function veteranToApplication(veteran) {
+  // TODO(awong): Figure out how to do this w/o going through JSON.
+  return JSON.stringify(veteran, (key, value) => {
+    switch (key) {
+      // Convert radio buttons into booleans.
+      case 'isVaServiceConnected':
+      case 'compensableVaServiceConnected':
+      case 'provideSupportLastYear':
+      case 'receivesVaPension':
+      case 'provideFinancialInfo':
+      case 'understandsFinancialDisclosure':
+      case 'sameAddress':
+      case 'cohabitedLastYear':
+      case 'isCoveredByHealthInsurance':
+      case 'isMedicaidEligible':
+      case 'isEnrolledMedicarePartA':
+        return value.value === 'Y';
+
+      case 'veteranGrossIncome':
+      case 'veteranNetIncome':
+      case 'veteranOtherIncome':
+      case 'spouseGrossIncome':
+      case 'spouseNetIncome':
+      case 'spouseOtherIncome':
+      case 'grossIncome':
+      case 'netIncome':
+      case 'otherIncome':
+      case 'deductibleEducationExpenses':
+      case 'deductibleFuneralExpenses':
+      case 'deductibleMedicalExpenses':
+        return Number(value.value);
+
+      default:
+        // fall through.
+    }
+
+    // Turn date fields into ISO8601 dates. Doing this manually because the format is constricted
+    // enough that going through the Javascript Date object has no real benefit and instead
+    // just inserts runtime envrionment compatibility concerns with whether or not the date is
+    // read as localtime or UTC.
+    //
+    // Testing of this is tricky as it will only be noticeable if the runtime has different
+    // timezone from expectation and tests are run at a time of day where there might be
+    // an issue.
+    if (value.day !== undefined && value.month !== undefined && value.year !== undefined) {
+      let iso8601date = value.year.value;
+      iso8601date += '-';
+      if (parseInt(value.month.value, 10) < 10) {
+        iso8601date += '0';
+      }
+      iso8601date += value.month.value;
+
+      iso8601date += '-';
+      if (parseInt(value.day.value, 10) < 10) {
+        iso8601date += '0';
+      }
+      iso8601date += value.day.value;
+
+      return iso8601date;
+    }
+
+    // Strip all the dirty flags out of the veteran and flatted it into a single atomic value.
+    // Do this last in the sequence as a sweep of all remaining objects that are not special cased.
+    if (value.value !== undefined && value.dirty !== undefined) {
+      return value.value;
+    }
+
+    return value;
+  });
+}
+
+module.exports = { blankVeteran, completeVeteran, veteranToApplication };

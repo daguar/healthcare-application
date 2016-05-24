@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const moment = require('moment');
 const validations = require('./utils/validations');
 //
 // The Comments starting with "// *" that look like a bad CSV dump are copy-pasta-ed out the VOA
@@ -36,171 +37,6 @@ const formTemplate = {
     }
   }
 };
-
-/**
- * Returns a string left-padded with '0' of the given width.
- *
- * Warning: If 'number' is wider than 'width' characters, only the right-most 'width'
- * characters are returned.
- *
- * TODO: should this explicitly check if 'number' and 'width' are actually numbers?
- *
- * @example
- * // returns "0001"
- * zeroPadNumber(1, 4);
- * @example
- * // returns "15"
- * zeroPadNumber(31415, 2);
- *
- * @param {number} number The number you want left-padded with '0' characters.
- * @param {number} width The width of the resulting string.
- * @returns {String}
- */
-// TODO(awong): Move to validations and add unittests.
-function zeroPadNumber(number, padding) {
-  return (new Array(padding + 1).join('0') + number).slice(-padding);
-}
-
-/**
- * Returns true when the provided year is a leap-year in the Gregorian calendar.
- *
- * Based on "Introduction To Calendars" paragraph at http://aa.usno.navy.mil/faq/docs/calendars.php
- * specifically, the paragraph:
- *
- * "The Gregorian Calendar has become the internationally accepted civil calendar. The
- * leap year rule for the Gregorian Calendar differs slightly from one for the Julian
- * Calendar. The Gregorian leap year rule is: Every year that is exactly divisible by four is
- * a leap year, except for years that are exactly divisible by 100, but these centurial
- * years are leap years if they are exactly divisible by 400. For example, the years 1700, 1800,
- * and 1900 are not leap years, but the year 2000 is. ..."
- *
- * @example
- * // returns:
- * [ [ 1700, false ],
- *   [ 1800, false ],
- *   [ 1900, false ],
- *   [ 2000, true ],
- *   [ 2011, false ],
- *   [ 2012, true ],
- *   [ 2013, false ],
- *   [ 2014, false ],
- *   [ 2015, false ],
- *   [ 2016, true ],
- *   [ 2017, false ] ]
- *
- * [1700,1800,1900,2000,2011,2012,2013,2014,2015,2016,2017].map((a)=>{return [a,isLeapYear(a)]})
- *
- * TODO: Albert, please double check the date logic.
- *
- * @param {number} year The year you want to test.
- * @returns {boolean}
- */
-function isLeapYear(year) {
-  return ((year % 4 === 0) && (year % 100 !== 0) || (year % 400 === 0));
-}
-
-/**
- * Returns true when the provided dateObject contains a valid date after 1582
- * which is the first full year after the Gregorian calendar was introduced.
- *
- * The significance of the Gregorian calendar is because leap-year calculations
- * are only relevant for dates based on this calendar.
- *
- * This is based on the first full year the Gregorian calendar was introduced:
- * https://en.wikipedia.org/wiki/Gregorian_calendar
- * specifically the paragraph:
- * "The Gregorian calendar, also called the Western calendar and the Christian calendar, is
- * internationally the most widely used civil calendar. It is named for Pope Gregory XIII, who
- * introduced it in October 1582."
- *
- * @example
- * // returns false
- * isValidDateObject()
- *
- * @example
- * // returns true
- * isValidDateObject({month: 1, day: 30, year: 1980})
- *
- * @example
- * // returns true
- * isValidDateObject({month: 2, day: 29, year: 1980})
- *
- * @example
- * // returns false
- * isValidDateObject({month: 2, day: 32, year: 2012})
- *
- * @example
- * // returns false
- * isValidDateObject({month: 2, day: 32, year: 2011})
- *
- * @param {Object} dateObject in the format of {month: 1, day: 30, year: 1980}
- * @returns {boolean}
- */
-// TODO(awong): This does not behave correctly with the input. Fix or remove/replace.
-function isValidDateObject(dateObject) {
-  if (typeof dateObject !== 'object' || dateObject === null) return false;
-  if (dateObject.hasOwnProperty('month') &&
-  dateObject.hasOwnProperty('day') &&
-  dateObject.hasOwnProperty('year')) {
-    if (dateObject.year < 1583) return false;
-    if (dateObject.day < 1 || dateObject.day > 31) return false;
-    switch (dateObject.month) {
-      // tests for 31 day months
-      case 1: // January
-      case 3: // March
-      case 5: // May
-      case 7: // July
-      case 8: // August
-      case 10: // October
-      case 12: // December
-        if (dateObject.day > 31) return false;
-        break;
-      // tests for February
-      case 2: // February
-        if (isLeapYear(dateObject.year) === true && dateObject.day > 29) return false;
-        if (isLeapYear(dateObject.year) === false && dateObject.day > 28) return false;
-        break;
-      // tests for 30 day months
-      case 4: // April
-      case 6: // June
-      case 9: // September
-      case 11: // November
-        if (dateObject.day > 30) return false;
-        break;
-      default:
-        return false;
-    }
-    return true;
-  }
-  return false;
-}
-isValidDateObject(null);  // TODO(awong): This makes lint shutup. Remove once calendar validation is sorted out.
-
-/**
- * Returns a date string as given in examples from ES team
- * ("01/30/1980"" in month, day, year order) OR undefined if
- * the date object is invalid.
- *
- * This validation is stricter than what the XSD implies (which is the date can't be NULL
- * but must have at least month and year with no future dates.)
- *
- * TODO: Accept dates w/o day and return in the format MM/YYYY.
- *
- * @example
- * // returns "01/01/1980"
- * formDateToESDate({month: 1, day: 30, year: 1980})
- *
- * @example
- * // returns undefined
- * formDateToESDate(100)
- *
- * @param {Object} dateObject in the format of {month: 1, day: 30, year: 1980}
- * @returns {String}
- */
-function formDateToESDate(dateObject) {
-  // TODO(awong) Verify dateObject is valid before parsing.
-  return `${zeroPadNumber(dateObject.month, 2)}/${zeroPadNumber(dateObject.day, 2)}/${zeroPadNumber(dateObject.year, 4)}`;
-}
 
 /**
  * Converts maritalStatus from the values in the Veteran resource to the VHA Standard Data Service code.
@@ -263,12 +99,12 @@ function spanishHispanicToSDSCode(isSpanishHispanicLatino) {
 function veteranToRaces(veteran) {
   // from VHA Standard Data Service (ADRDEV01) HL7 24 Race Map List
   const races = [];
-  if (veteran.isAmericanIndianOrAlaskanNative) races.push({ race: '1002-5' });
-  if (veteran.isAsian) races.push({ race: '2028-9' });
-  if (veteran.isBlackOrAfricanAmerican) races.push({ race: '2054-5' });
-  if (veteran.isNativeHawaiianOrOtherPacificIslander) races.push({ race: '2076-8' });
-  if (veteran.isWhite) races.push({ race: '2106-3' });
-  return races;
+  if (veteran.isAmericanIndianOrAlaskanNative) races.push('1002-5');
+  if (veteran.isAsian) races.push('2028-9');
+  if (veteran.isBlackOrAfricanAmerican) races.push('2054-5');
+  if (veteran.isNativeHawaiianOrOtherPacificIslander) races.push('2076-8');
+  if (veteran.isWhite) races.push('2106-3');
+  return races.length > 0 ? { race: races } : undefined;
 }
 
 /**
@@ -283,15 +119,7 @@ function veteranToRaces(veteran) {
  */
 // TODO(awong): Move to validations and add unittests.
 function yesNoToESBoolean(yesNo) {
-  switch (yesNo) {
-    case 'Y':
-      return 'true';
-    case 'N':
-      return 'false';
-    default:
-      // TODO(awong): What to do here?
-      return '';
-  }
+  return yesNo;
 }
 
 /**
@@ -303,12 +131,12 @@ function yesNoToESBoolean(yesNo) {
 function veteranToSpouseInfo(veteran) {
   if (veteran.maritalStatus !== 'Never Married') {
     return {
-      dob: formDateToESDate(veteran.spouseDateOfBirth),
+      dob: validations.dateOfBirth(veteran.spouseDateOfBirth),
       givenName: veteran.spouseFullName.first,
       middleName: veteran.spouseFullName.middle,
       familyName: veteran.spouseFullName.last,
       suffix: veteran.spouseFullName.suffix,
-      startDate: formDateToESDate(veteran.dateOfMarriage),
+      startDate: validations.dateOfBirth(veteran.dateOfMarriage),
       ssns: {
         ssn: {
           ssnText: validations.validateSsn(veteran.spouseSocialSecurityNumber)
@@ -354,7 +182,37 @@ function resourceToIncomeCollection(resource) {
     });
   }
 
-  return incomeCollection.length > 0 ? incomeCollection : undefined;
+  return incomeCollection.length > 0 ? { income: incomeCollection } : undefined;
+}
+
+/**
+ * Extracts an expenseCollection object out of an API resource (eg., veteran, child, spouse)
+ *
+ * @param {Object} resource The resource with expense data.
+ * @returns {Object} ES system expenseInfo message.
+ */
+function resourceToExpenseCollection(resource) {
+  const expenseCollection = [];
+  if (resource.educationExpense > 0) {
+    expenseCollection.push({
+      amount: resource.educationExpense,
+      expenseType: '3', // Veteran's Educational Expenses TODO is this right?
+    });
+  }
+  if (resource.funeralExpense > 0) {
+    expenseCollection.push({
+      amount: resource.funeralExpense,
+      expenseType: '19', // Funeral and Burial Expenses TODO is this right?
+    });
+  }
+  if (resource.medicalExpense > 0) {
+    expenseCollection.push({
+      amount: resource.medicalExpense,
+      expenseType: '18', // Total Non-Reimbursed Medical Expenses TODO is this right?
+    });
+  }
+
+  return expenseCollection.length > 0 ? { expense: expenseCollection } : undefined;
 }
 
 /**
@@ -391,7 +249,7 @@ function childRelationshipToSDSCode(childRelationship) {
  */
 function childToDependentInfo(child) {
   return {
-    dob: formDateToESDate(child.childDateOfBirth),
+    dob: validations.dateOfBirth(child.childDateOfBirth),
     givenName: child.childFullName.first,
     middleName: child.childFullName.middle,
     familyName: child.childFullName.last,
@@ -402,7 +260,7 @@ function childToDependentInfo(child) {
         ssnText: validations.validateSsn(child.childSocialSecurityNumber)
       }
     },
-    startDate: formDateToESDate(child.childBecameDependent)
+    startDate: validations.dateOfBirth(child.childBecameDependent)
   };
 }
 
@@ -430,7 +288,7 @@ function childToDependentFinancialsInfo(child) {
  * @returns {Object} ES system dependentFinancialsCollection message
  */
 function veteranToDependentFinancialsCollection(veteran) {
-  if (veteran.hasChildrenToReport) {
+  if (veteran.children.length > 0) {
     return veteran.children.map((child) => {
       return { dependentFinancials: childToDependentFinancialsInfo(child) };
     });
@@ -479,7 +337,7 @@ function providerToInsuranceInfo(provider) {
 //  * personInfo/ssnText, Value not 9 digits and contains a non number., ,
 function veteranToPersonInfo(veteran) {
   return {
-    dob: formDateToESDate(veteran.veteranDateOfBirth),
+    dob: validations.dateOfBirth(veteran.veteranDateOfBirth),
     firstName: validations.validateString(veteran.veteranFullName.first, 30),
     gender: veteran.gender,  // TODO(awong): need to restrict valid values.
     lastName: validations.validateString(veteran.veteranFullName.last, 30),
@@ -598,8 +456,8 @@ function veteranToMilitaryServiceInfo(veteran) {
         militaryServiceEpisodes: {
           militaryServiceEpisode: {
             dischargeType: dischargeTypeToSDSCode(veteran.dischargeType),
-            startDate: formDateToESDate(veteran.lastEntryDate),
-            endDate: formDateToESDate(veteran.lastDischargeDate),
+            startDate: validations.dateOfBirth(veteran.lastEntryDate),
+            endDate: validations.dateOfBirth(veteran.lastDischargeDate),
             serviceBranch: serviceBranchToSDSCode(veteran.lastServiceBranch),
           }
         },
@@ -650,23 +508,20 @@ function veteranToMilitaryServiceInfo(veteran) {
 //  * insuranceCollection/insuranceInfo/subscriber , Required if enrolled in Medicare Part A or Part B , "Applies when ""insuranceMappingTypeName"" = ""MDCR""",
 function veteranToInsuranceCollection(veteran) {
   const insuranceCollection = veteran.providers.map((provider) => {
-    return { insurance: providerToInsuranceInfo(provider) };
+    return providerToInsuranceInfo(provider);
   });
-  if (veteran.isEnrolledMedicarePartA === 'Y') {
+  if (veteran.isEnrolledMedicarePartA) {
     insuranceCollection.push({
-      // FIX. This is a sequence. What does that look like?
-      insurance: {
-        companyName: 'Medicare',
-        enrolledInPartA: yesNoToESBoolean(veteran.isEnrolledMedicarePartA),
-        insuranceMappingTypeName: 'MDCR', // TODO this code is from VHA Standard Data Service (ADRDEV01) Insurance Mapping List
-        partAEffectiveDate: formDateToESDate(veteran.medicarePartAEffectiveDate),
-      }
+      companyName: 'Medicare',
+      enrolledInPartA: yesNoToESBoolean(veteran.isEnrolledMedicarePartA),
+      insuranceMappingTypeName: 'MDCR', // TODO this code is from VHA Standard Data Service (ADRDEV01) Insurance Mapping List
+      partAEffectiveDate: validations.dateOfBirth(veteran.medicarePartAEffectiveDate),
     });
   }
 
   // TODO(awong): Return the whole collection when the bug with node-soap's wsdl.js that causes
   // the namespace prefix to be dropped in this case is fixed.
-  return insuranceCollection[0];
+  return insuranceCollection.length > 0 ? { insurance: insuranceCollection } : undefined;
 }
 
 // Produces an financialsInfo compatible type from a veteran resource.
@@ -942,11 +797,23 @@ function veteranToEnrollmentDeterminationInfo(veteran) {
 function veteranToFinancialsInfo(veteran) {
   return {
     financialStatement: {
-      expenses: undefined, // TODO(awong): Fix.
-      incomes: undefined,  // TODO(awong): Fix.
+      expenses: resourceToExpenseCollection({
+        educationExpense: veteran.deductibleEducationExpenses,
+        funeralExpense: veteran.deductibleFuneralExpenses,
+        medicalExpense: veteran.deductibleMedicalExpenses
+      }),
+      incomes: resourceToIncomeCollection({
+        grossIncome: veteran.veteranGrossIncome,
+        netIncome: veteran.veteranNetIncome,
+        otherIncome: veteran.veteranOtherIncome
+      }),
       spouseFinancialsList: {
         spouseFinancials: {
-          incomes: undefined, // TODO(awong): Fix.
+          incomes: resourceToIncomeCollection({
+            grossIncome: veteran.spouseGrossIncome,
+            netIncome: veteran.spouseNetIncome,
+            otherIncome: veteran.spouseOtherIncome
+          }),
           spouse: veteranToSpouseInfo(veteran),
           contributedToSpouse: yesNoToESBoolean(veteran.provideSupportLastYear),
           marriedLastCalendarYear: veteran.maritalStatus === 'Married',
@@ -1171,22 +1038,21 @@ function veteranToDemographicsInfo(veteran) {
           zipCode: veteran.veteranAddress.zipcode,
           addressTypeCode: 'P',  // TODO(awong): this code is from VHA Standard Data Service (ADRDEV01) Address Type List P==Permanent. Determine if we need it.
         },
-        emails: [{
+        emails: {
           email: veteran.email,
-        }],
-        phones: [
-          {
-            phone: {
+        },
+        phones: {
+          phone: [
+            {
               phoneNumber: veteran.homePhone,
               type: '1', // TODO(awong): Magic number: Code is from VHA Standard Data Service (ADRDEV01) Phone Contact Type List
             },
-          }, {
-            phone: {
+            {
               phoneNumber: veteran.mobilePhone,
               type: '4', // TODO(awong): Magic number: Code is from VHA Standard Data Service (ADRDEV01) Phone Contact Type List
             }
-          }
-        ]
+          ]
+        }
       },
     },
     ethnicity: spanishHispanicToSDSCode(veteran.isSpanishHispanicLatino),
@@ -1281,12 +1147,8 @@ function veteranToSaveSubmitForm(veteran) {
   request.form.summary = veteranToSummary(veteran);
   request.form.applications = {
     applicationInfo: {
-      // FIX. Use current date.
-      //  * form / applications / applicationInfo / appDate, "Application date cannot be a null value when the form identifier type is ""100 -- 1010EZ""", ,
-      //  * form / applications / applicationInfo / benefitType, "Neither Health Benefits or Dental is indicated,  at least one is required; both may be indicated.", ,
-      //  * form / applications / applicationInfo / benefitType, Checkboxes, Yes, This is one question of the form but is currently passed as 2 differerent values with a yes/no for each 1. Enrollment Health services and 2. Dental
-      appDate: '2016-05-13',
-      appMethod: '1'
+      appDate: moment().format('YYYY-MM-DD'),
+      appMethod: '1' // '1' for health, '2' for dental.  (It's always '1' here)
     }
   };
   // TODO(awong): Remove this function after validations translate all numbers and booleans to strings.
