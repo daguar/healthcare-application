@@ -119,7 +119,8 @@
     "webpack": "^1.12.14",
     "webpack-dev-middleware": "^1.6.1",
     "webpack-hot-middleware": "^2.10.0",
-    "winston": "^2.2.0"
+    "winston": "^2.2.0",
+    "winston-cloudwatch": "^1.3.2"
   },
   "optionalDependencies": {
     "fsevents": "^1.0.7"

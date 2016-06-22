@@ -6,9 +6,18 @@ const winston = require('winston');
 
 const config = require('../config');
 
+const logger = new (winston.Logger)({
+  transports: [
+    new (winston.transports.Console)(),
+    new (winston.transports.File)({ filename: config.logPath })
+  ]
+});
+
+logger.info(`Logging output to ${config.logPath}`);
+
 const options = {
   config,
-  logger: winston
+  logger
 };
 
 const application = require('./server/routes/application');
