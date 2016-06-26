@@ -4,6 +4,7 @@
 
 ### Back-end
 
+
 The backend receives a JSON object from the front-end containing a Vet's 1010ez request and
 sends it to an ES endpoint. The ES endpoint response is then returned to the front-end.
 
