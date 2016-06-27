@@ -52,7 +52,7 @@ const config = {
     // Current set to a local version of the file so the server will start even if off the network.
     //
     // TODO(awong): Figure out how to safely use this fallback on the local version of the wsdl.
-    wsdl: path.join(__dirname, 'hca-api-stub/voa.wsdl'),
+    wsdl: path.join(__dirname, 'src/server/config/voa.wsdl'),
 
     // Path or Array of paths to PEM file containing certificates that should be trusted for the SOAP
     // endpoint server TLS negotation.
