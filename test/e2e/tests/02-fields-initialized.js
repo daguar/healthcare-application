@@ -204,11 +204,15 @@ module.exports = {
     expectValueToBeBlank(client, 'select[name="childBecameDependentMonth"]');
     expectValueToBeBlank(client, 'select[name="childBecameDependentDay"]');
     expectValueToBeBlank(client, 'input[name="childBecameDependentYear"]');
-    expectInputToNotBeSelected(client, 'input[name="childDisabledBefore18"]');
-    expectInputToNotBeSelected(client, 'input[name="childAttendedSchoolLastYear"]');
+    expectInputToNotBeSelected(client, 'input[name="childDisabledBefore18-0"]');
+    expectInputToNotBeSelected(client, 'input[name="childDisabledBefore18-1"]');
+    expectInputToNotBeSelected(client, 'input[name="childAttendedSchoolLastYear-0"]');
+    expectInputToNotBeSelected(client, 'input[name="childAttendedSchoolLastYear-1"]');
     expectValueToBeBlank(client, 'input[name="childEducationExpenses"]');
-    expectInputToNotBeSelected(client, 'input[name="childCohabitedLastYear"]');
-    expectInputToNotBeSelected(client, 'input[name="childReceivedSupportLastYear"]');
+    expectInputToNotBeSelected(client, 'input[name="childCohabitedLastYear-0"]');
+    expectInputToNotBeSelected(client, 'input[name="childCohabitedLastYear-1"]');
+    expectInputToNotBeSelected(client, 'input[name="childReceivedSupportLastYear-0"]');
+    expectInputToNotBeSelected(client, 'input[name="childReceivedSupportLastYear-1"]');
 
     common.completeChildInformation(client, common.testValues, true);
     client.click('.form-panel .usa-button-primary');
@@ -242,6 +246,9 @@ module.exports = {
     expectInputToNotBeSelected(client, 'input[name="isMedicaidEligible-1"]');
     expectInputToNotBeSelected(client, 'input[name="isEnrolledMedicarePartA-0"]');
     expectInputToNotBeSelected(client, 'input[name="isEnrolledMedicarePartA-1"]');
+
+    client.click('input[name="isEnrolledMedicarePartA-0"]');
+
     expectValueToBeBlank(client, 'select[name="medicarePartAEffectiveMonth"]');
     expectValueToBeBlank(client, 'select[name="medicarePartAEffectiveDay"]');
     expectValueToBeBlank(client, 'input[name="medicarePartAEffectiveYear"]');
@@ -268,7 +275,8 @@ module.exports = {
     expectInputToNotBeSelected(client, 'input[name="isEssentialAcaCoverage"]');
     expectValueToBeBlank(client, 'select[name="state"]');
     expectValueToBeBlank(client, 'select[name="vaMedicalFacility"]');
-    expectInputToNotBeSelected(client, 'input[name="wantsInitialVaContact"]');
+    expectInputToNotBeSelected(client, 'input[name="wantsInitialVaContact-0"]');
+    expectInputToNotBeSelected(client, 'input[name="wantsInitialVaContact-1"]');
     common.completeVaInsuranceInformation(client, common.testValues, true);
     client.click('.form-panel .usa-button-primary');
     expectNavigateAwayFrom(client, '/insurance-information/va-facility');
