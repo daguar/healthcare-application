@@ -78,7 +78,7 @@ const config = {
 
   environment: process.env.NODE_ENV || 'development',
 
-  logPath: './output.log',
+  logger: require('./config.logger.js'),
 
   // This is a valid form submission ID from the ES system that will be used by the health check to 
   // verify that the ES system is up.
