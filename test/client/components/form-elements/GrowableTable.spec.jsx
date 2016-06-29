@@ -145,7 +145,7 @@ describe('<GrowableTable>', () => {
       onRowsUpdate.reset();
     });
 
-    it('Add Button adds new row w/o distubing existing entries', () => {
+    it('Add Button adds new row w/o disturbing existing entries', () => {
       const buttons = ReactTestUtils.scryRenderedDOMComponentsWithTag(growableTable, 'button');
       const addButton = buttons.find((element) => { return element.textContent === 'Add'; });
       expect(addButton).to.not.be.undefined;
@@ -215,4 +215,3 @@ describe('<GrowableTable>', () => {
     });
   });
 });
-

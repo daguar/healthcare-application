@@ -83,7 +83,7 @@ class GrowableTable extends React.Component {
     this.props.onRowsUpdate(rows);
   }
 
-  // TODO: change this to not use reaactKey, and instead perhaps add
+  // TODO: change this to not use reactKey, and instead perhaps add
   // `this.rows = []` in the constructor and update on changes
   render() {
     let reactKey = 0;
