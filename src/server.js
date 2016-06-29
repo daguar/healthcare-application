@@ -7,8 +7,6 @@ const winston = require('winston');
 const config = require('../config');
 const logger = config.logger;
 
-logger.info(`Logging output to ${config.logPath}`);
-
 const options = {
   config,
   logger
