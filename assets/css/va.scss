@@ -2189,103 +2189,115 @@ button[class*="usa-button-"] {
 
 /* Overlay style */
 
+.va-overlay-close {
+  @media #{$medium} {
+    display: none;
+  }
+  &--icon {
+    display: inline;
+    margin: 0;
+    padding: 1rem;
+    width: auto;
+    
+    &:hover {
+      background: transparent;
+    }
+  }
+}
+
+
+@media #{$medium} {
+  .va-overlay-close {
+    display: none;
+  }
+}
+
 @media #{$small-only} {
-
-  .overlay {
-  	position: fixed;
-  	width: 100%;
-  	height: 100%;
-  	top: 0;
-  	left: 0;
+  .va-overlay {
+    background: rgba($color-primary-darkest, .95);
+    height: 100%;
+    left: 0;
+    -webkit-transition: opacity 0.5s, visibility 0s 0.5s;
+    opacity: 0;
+    position: fixed;
+    top: 0;
+    transition: opacity 0.5s, visibility 0s 0.5s;
+    visibility: hidden;
+    width: 100%;
     z-index: 800;
-  	background: rgba($color-primary-darkest, .95);
+  
+    input[type="text"] {
+      -webkit-appearance: none;
+      border-radius: 3px 0 0 3px;
+    }
   }
-
-  /* Overlay closing cross */
-  .overlay .overlay-close {
-    display: block;
-    border: none;
-  	outline: none;
-  	z-index: 100;
+  
+  .va-mobile-searchclose  {
+    border-radius: 0;
+    display: block !important;
+    width: 100% !important;
+    margin: 0;
+    width: auto;
+    background: $color-primary;
   }
-
-
-  button#trigger-overlay {
+    
+  .va-mobile-searchtrigger {
     padding: .5em;
     margin-top: 0;
     border-radius: .15em;
   }
 
-  /* Effects */
-  .overlay-fullscreen {
-  	opacity: 0;
-  	visibility: hidden;
-  	-webkit-transition: opacity 0.5s, visibility 0s 0.5s;
-  	transition: opacity 0.5s, visibility 0s 0.5s;
+  .va-overlay--open {
+    opacity: 1;
+    visibility: visible;
+    -webkit-transition: opacity 0.5s;
+    transition: opacity 0.5s;
 
-    button {
-      border-radius: 0;
-      display: block;
-      width: 100% !important;
-      margin: 0;
-      width: auto;
-      background: $color-primary;
-
-    }
-
-    input[type="text"] {
-      -webkit-appearance: none;
-      border-radius: 3px 0 0 3px;
-    }
-
-  }
-
-  .overlay-fullscreen.open {
-  	opacity: 1;
-  	visibility: visible;
-  	-webkit-transition: opacity 0.5s;
-  	transition: opacity 0.5s;
     .columns {
       padding: 0;
     }
   }
 
-  .overlay-fullscreen .menu {
-  	-webkit-perspective: 1200px;
-  	perspective: 1200px;
+  .va-overlay .menu {
+    -webkit-perspective: 1200px;
+    perspective: 1200px;
     padding: 1em 1em;
   }
 
-  .overlay-fullscreen form {
-  	opacity: 0.4;
-  	-webkit-transform: translateY(-25%) rotateX(35deg);
-  	transform: translateY(-25%) rotateX(35deg);
-  	-webkit-transition: -webkit-transform 0.5s, opacity 0.5s;
-  	transition: transform 0.5s, opacity 0.5s;
+  .va-overlay form {
+    opacity: 0.4;
+    -webkit-transform: translateY(-25%) rotateX(35deg);
+    transform: translateY(-25%) rotateX(35deg);
+    -webkit-transition: -webkit-transform 0.5s, opacity 0.5s;
+    transition: transform 0.5s, opacity 0.5s;
   }
 
-  .overlay-fullscreen.open form {
-  	opacity: 1;
-  	-webkit-transform: rotateX(0deg);
-  	transform: rotateX(0deg);
+  .va-overlay--open form {
+    opacity: 1;
+    -webkit-transform: rotateX(0deg);
+    transform: rotateX(0deg);
   }
 
-  .overlay-fullscreen.close form {
-  	-webkit-transform: translateY(25%) rotateX(-35deg);
-  	transform: translateY(25%) rotateX(-35deg);
+  .va-overlay--closed form {
+    -webkit-transform: translateY(25%) rotateX(-35deg);
+    transform: translateY(25%) rotateX(-35deg);
+  }
+  .va-overlay--closed {
+    display: block;
+    border: none;
+    outline: none;
+    z-index: 100;
   }
 
+  .va-overlay-body {
+    margin: 1rem auto;
+  }
+  
   @media screen and (max-height: 30.5em) {
-  	.overlay form {
-  		height: 70%;
-  	}
-
+    .overlay form {
+      height: 70%;
+    }
   }
-
-}
-
-.overlay-close {
-  display: none;
 }
 
 // List overrides
@@ -2550,4 +2562,50 @@ pre[class*="language-"]  {
   background-color: $color-gray-lightest !important;
   font-size: .9em;
   line-height: inherit !important;
+}
+
+// Breadcrumbs
+.va-nav-breadcrumbs {
+  background: $color-white;
+  color: $color-primary;
+  font-size: inherit;
+  padding: 1em 0;
+
+  
+  li {
+    display: inline-block;
+    margin: .25em 0;
+    //outline: 1px dashed #6c6;
+    padding: .25em 0 .25em 0;
+    vertical-align: middle;
+
+    &:after {
+      content: " › "; 
+      display: inline-block; 
+      padding: 0 .35em;
+    }
+
+    &.active {
+      font-weight: bold;
+      padding: .3em 0;
+
+      &:after {
+        content: '';
+      }
+    }
+  }
+  a {
+    color: $color-primary;
+    display: inline-block;
+    padding: 2px;
+
+    &:hover {
+      background: rgba(0,0,0,.1); 
+    }
+  }
+}
+
+.va-nav-breadcrumbs-list {
+  @extend .columns;
+  float: none;
 }
